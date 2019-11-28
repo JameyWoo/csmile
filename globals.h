@@ -15,7 +15,7 @@
 #include <stack>
 #include <algorithm>
 
-#define MAX_CHILDREN 4  // TODO: 是否合适? 一大块语句的结构是如何的?
+#define MAX_CHILDREN 4
 
 using namespace std;
 

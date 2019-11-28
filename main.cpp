@@ -4,6 +4,7 @@
 #include "scan.h"
 #include "parse.h"
 #include "analyze.h"
+#include "cgen.h"
 
 using namespace std;
 
@@ -21,4 +22,5 @@ int main(int argc, char *argv[]) {
     TreeNode* root = parse();
     buildSymtab(root);
     typeCheck(root);
+    codeGen(root);  // 目前只传递根节点进去, 暂时不写入文件
 }
