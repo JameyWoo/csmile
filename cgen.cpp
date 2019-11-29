@@ -26,6 +26,7 @@ string cGen(TreeNode* root) {
         p2 = root->child[3];
         // TODO: 添加函数参数的中间代码
         cGen(p2);
+        cGen(root->sibling);
     } else if ("Compound" == root->nodekind) {
         p1 = root->child[0];
         p2 = root->child[1];
@@ -50,7 +51,7 @@ string cGen(TreeNode* root) {
         string cond = root->child[0]->name;  // 条件
         string l1 = getL(), l2 = getL();
         emit("if " + cGen(root->child[0]));
-        emit(" goto");
+        emit(" goto ");
         emit(l1 + "\n");
         emit("goto ");
         emit(l2 + "\n");
@@ -84,8 +85,10 @@ string cGen(TreeNode* root) {
             error("no such a id !!!");
             return "";
         }
-    } else if ("LocVarDecl" == root->nodekind) {
-
+    } else if ("Const" == root->nodekind) {
+        string reg = getR();
+        emit("LD " + reg + " " + to_string(root->val) + "\n");
+        return reg;
     }
     return "";
 }

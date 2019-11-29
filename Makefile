@@ -15,3 +15,9 @@ $(EXEC): $(OBJS)
 
 clean: 
 	del *.exe *.o $(EXEC) $(OBJS)
+
+test1: all
+	./main.exe tests/test1.c
+
+test2: all
+	./main.exe tests/test2.c
