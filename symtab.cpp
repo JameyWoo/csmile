@@ -1,21 +1,24 @@
 #include "symtab.h"
 
-struct SymtabOne {
-    vector<int> line;
-    int location;
-    int rank;
-    int addr;
-    SymtabOne(){}
-    SymtabOne(int lin, int loc): location(loc) {
-        line.push_back(lin);
-    }
-    SymtabOne(int lin, int loc, int rank): location(loc), rank(rank) {
-        line.push_back(lin);
-    }
-    SymtabOne(int loc): location(loc) { }
-};
 vector<map<string, SymtabOne>> vec_symtabs;
 map<string, SymtabOne> symtabs;
+
+// struct SymtabOne {
+//     vector<int> line;
+//     int location;
+//     int rank;
+//     int addr;
+//     SymtabOne(){}
+//     SymtabOne(int lin, int loc): location(loc) {
+//         line.push_back(lin);
+//     }
+//     SymtabOne(int lin, int loc, int rank): location(loc), rank(rank) {
+//         line.push_back(lin);
+//     }
+//     SymtabOne(int loc): location(loc) { }
+// };
+// vector<map<string, SymtabOne>> vec_symtabs;
+// map<string, SymtabOne> symtabs;
 int address = 0;
 
 // 一个新的函数建立一个新的符号表.
