@@ -4,5 +4,6 @@
 #include "globals.h"
 
 void emitComment(string);
+void emit(string);
 
 #endif // !_CODE_H_

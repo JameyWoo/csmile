@@ -4,6 +4,7 @@ struct SymtabOne {
     vector<int> line;
     int location;
     int rank;
+    int addr;
     SymtabOne(){}
     SymtabOne(int lin, int loc): location(loc) {
         line.push_back(lin);
@@ -15,6 +16,7 @@ struct SymtabOne {
 };
 vector<map<string, SymtabOne>> vec_symtabs;
 map<string, SymtabOne> symtabs;
+int address = 0;
 
 // 一个新的函数建立一个新的符号表.
 void newSymtabs() {
@@ -29,7 +31,7 @@ int st_lookup(string name) {
     if (symtabs.count(name) == 0) {
         return -1;
     } else {
-        return 1;
+        return symtabs[name].addr;
     }
 }
 
@@ -42,9 +44,11 @@ void st_insert(string name, int lineno, int loc, int rank) {
             symtabs[name].line.push_back(lineno);
         } else if (lineno != -1) {  // 不在符号表
             SymtabOne s(lineno, loc, rank);
+            s.addr = ++address;
             symtabs[name] = s;
         } else if (lineno != -1) {  // 不在符号表, 只建立key, 不在vector中插入
             SymtabOne s(loc);
+            s.addr = ++address;
             symtabs[name] = s;
         }
     } else if (rank == 1) {
@@ -53,6 +57,7 @@ void st_insert(string name, int lineno, int loc, int rank) {
             symtabs[name].line.push_back(lineno);
         } else {  // 不在符号表
             SymtabOne s(lineno, loc, rank);
+            s.addr = ++address;
             symtabs[name] = s;
         }
     }
