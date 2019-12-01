@@ -42,9 +42,11 @@ func process(conn net.Conn) {
 		// 同样以阻塞地方式等待读取数据(接收)
 		n, err := conn.Read(buf)
 		if err != nil {
-			fmt.Println("conn.Read err =", err)
+			// 修改了报错逻辑, 免得正常传输也有报错
 			if err == io.EOF {
-				fmt.Println("file read over", err)
+				fmt.Println("file read over")
+			} else {
+				fmt.Println("conn.Read err =", err)
 			}
 			return
 		}
