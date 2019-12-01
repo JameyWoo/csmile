@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"net"
+	"os"
 	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 
 // 处理一个连接
 func process(conn net.Conn) {
+	fmt.Println("start to process")
 	// server 也需要不断接收命令
 	for {
 		buf := make([]byte, 1024)
@@ -40,35 +42,52 @@ func process(conn net.Conn) {
 			break
 		}
 		mod := string(buf[:n])  // 读取的第一个是模式
-		switch mod {
-		case "simple":
-			// 简单命令模式
-			processSimple(conn)
-		case "upload":
-			// 上传文件
-		}
+		fmt.Println("mod: -" + mod + "-")
+		fmt.Println("mod simple")
+		processSimple(conn)
 	}
 }
 
 func processSimple(conn net.Conn) {
+	fmt.Println("process")
 	buf := make([]byte, 1024)
 	n, err := conn.Read(buf)
 	if err != nil {
 		fmt.Println("read error: ", err)
 	}
 	cmd := string(buf[:n])
-	fmt.Println("cmd: ", cmd)
-	command := exec.Command(cmd)
+	fmt.Println("cmd: +" + cmd + "+")
+	cmds := strings.Fields(strings.TrimSpace(cmd))  // 一个字符串数组
+	fmt.Println("args:", cmds)
+	// 单独执行 cd 命令
+	if cmds[0] == "cd" {
+		var path string
+		if len(cmds) == 2 {
+			if cmds[1][0] != '/' {
+				// 如果是相对路径, 那么进行组合
+				path, err = os.Getwd()
+				if err != nil {
+					fmt.Println("err: ", err)
+				}
+				// todo: 判断cmds[1]最后一个字符不是 /
+				path += "/" + cmds[1]
+			} else {
+				path = cmds[1]
+			}
+		}
+		os.Chdir(path)
+	}
+	command := exec.Command(cmds[0], cmds[1:]...)
 	// 获取输出对象
 	stdout, err := command.StdoutPipe()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("err = ", err)
 	}
 	// 保证关闭输出流
 	defer stdout.Close()
 	// 运行命令
 	if err := command.Start(); err != nil {
-		log.Fatal(err)
+		fmt.Println("err = ", err)
 	}
 	for {
 		buf := make([]byte, 1024)
