@@ -30,11 +30,11 @@ func main() {
 		}
 
 		// 按空格解析命令的各个部分
-		fmt.Println(strings.TrimSpace(cmd))
+		//fmt.Println(strings.TrimSpace(cmd))
 		cmds := strings.Fields(strings.TrimSpace(cmd))  // 一个字符串数组
 		// 查看类型
 		//fmt.Println("type: " + reflect.TypeOf(cmds).String())
-		fmt.Println(cmds)
+		//fmt.Println(cmds)
 
 		var bk bool  // 退出命令行
 		if len(cmds) == 0 {
@@ -49,9 +49,9 @@ func main() {
 				break
 			}
 			handleUpload(conn, cmds[1])  // 将本地文件上传到服务器的当前工作目录
-			fmt.Println("cmd: upload")
+			//fmt.Println("cmd: upload")
 		case "download":
-			fmt.Println("cmd: download")
+			//fmt.Println("cmd: download")
 		case "exit":  // 退出
 			bk = true
 		default:
@@ -75,7 +75,7 @@ func handleSimple(conn net.Conn, cmd string) {
 	buf := []byte("simple")
 	empty := make([]byte, 1024 - len(buf))
 	buf = BytesCombine(buf, empty)
-	fmt.Println("len of buf: ", len(buf))
+	//fmt.Println("len of buf: ", len(buf))
 	_, err := conn.Write(buf)  // 首先传递命令模式, 这里是simple cmd模式
 	if err != nil {
 		fmt.Println("write mod failed: ", err)
@@ -107,12 +107,12 @@ func handleSimple(conn net.Conn, cmd string) {
 
 // 处理上传命令 upload
 func handleUpload(conn net.Conn, filepath string) {
-	fmt.Println("handle upload")
+	//fmt.Println("handle upload")
 	// 发送模式mod, 并防止 粘包
 	buf := []byte("upload")
 	empty := make([]byte, 1024 - len(buf))
 	buf = BytesCombine(buf, empty)
-	fmt.Println("len of buf: ", len(buf))
+	//fmt.Println("len of buf: ", len(buf))
 	_, err := conn.Write(buf)  // 首先传递命令模式, 这里是simple cmd模式
 	if err != nil {
 		fmt.Println("write mod failed: ", err)
@@ -128,7 +128,7 @@ func handleUpload(conn net.Conn, filepath string) {
 	buf = []byte(file.Name())
 	empty = make([]byte, 1024 - len(buf))
 	buf = BytesCombine(buf, empty)
-	fmt.Println("len of buf: ", len(buf))
+	//fmt.Println("len of buf: ", len(buf))
 	_, err = conn.Write(buf)
 	if err != nil {
 		fmt.Println("write name error")

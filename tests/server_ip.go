@@ -44,15 +44,24 @@ func process(conn net.Conn) {
 		}
 		mod := string(buf[:n])  // 读取的第一个是模式
 		fmt.Println("mod: -" + mod + "-")
-		// 不能直接用 == 判断, 不晓得为什么
-		handleUpload(conn)
-		//if strings.Compare(mod, "simple") == 0 {
-		//	fmt.Println("mod simple")
-		//	handleSimple(conn)
-		//} else if strings.Compare(mod, "upload") == 0 {
-		//	fmt.Println("mod upload")
-		//	handleUpload(conn)
-		//}
+		cmpMod := ""
+		for i := 0; i < len(mod); i++ {
+			if mod[i] > 0 {
+				cmpMod += string(mod[i])
+			} else {
+				break
+			}
+		}
+		// 不能直接用 == 判断, 因为有很多空字符
+		//handleUpload(conn)
+		switch cmpMod {
+		case "simple":
+			fmt.Println("mod simple")
+			handleSimple(conn)
+		case "upload":
+			fmt.Println("mod upload")
+			handleUpload(conn)
+		}
 	}
 }
 
@@ -153,10 +162,9 @@ func handleUpload(conn net.Conn) {
 	}
 	defer fs.Close()
 
-	buf := make([]byte, 1024)
-
 	// todo: 发送文件前可以先计算一下大小然后根据大小发送
 	for {
+		buf := make([]byte, 1024)
 		// 同样以阻塞地方式等待读取数据(接收)
 		n, err := conn.Read(buf)
 		if err != nil {
@@ -173,6 +181,16 @@ func handleUpload(conn net.Conn) {
 			return
 		}
 		// 一次读取 n个字节, 然后写入到文件
-		fs.Write(buf[:n])
+		writeStr := string(buf)
+		var toWrite string
+		for i := 0; i < n; i++ {
+			if writeStr[i] > 0 {
+				toWrite += string(writeStr[i])
+			}
+		}
+		_, err = fs.Write([]byte(toWrite))
+		if err != nil {
+			fmt.Println("write error")
+		}
 	}
 }
