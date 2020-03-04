@@ -9,6 +9,7 @@ all: $(EXEC)
 
 $(EXEC): $(OBJS)
 	$(CXX) -o $(EXEC) $(OBJS) $(CXXFLAGS)
+	del *.o
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

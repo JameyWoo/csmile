@@ -38,7 +38,7 @@ TreeNode* param(TreeNode* k) {
         if (ptoken.type == "Id") {
             q            = new TreeNode("ParamId");
             q->name      = ptoken.value;
-            q->line = ptoken.line;
+            q->line      = ptoken.line;
             t->child[1]  = q;
             t->child_cnt = 2;
             match("Id");
@@ -105,7 +105,7 @@ TreeNode* local_declaration() {
         if (ptoken.type == "Id") {
             TreeNode* q2 = new TreeNode("Id");
             q2->name     = ptoken.value;
-            q2->line = ptoken.line;
+            q2->line     = ptoken.line;
             p->child[1]  = q2;
             match("Id");
             // TODO: 添加数组
@@ -310,7 +310,7 @@ TreeNode* simple_expression(TreeNode* k) {
     k           = NULL;
     if (ptoken.type == "CompareOp") {  // 比较
         TreeNode* q = new TreeNode("CompareOp");
-        q->line = ptoken.line;
+        q->line     = ptoken.line;
         q->op       = ptoken.value;
         q->child[0] = t;
         t           = q;
@@ -456,7 +456,7 @@ TreeNode* declaration() {
     if (p != NULL && ptoken.type == "Id") {  // 变量/函数名
         TreeNode* q = new TreeNode("Id");
         q->name     = ptoken.value;
-        q->line = ptoken.line;
+        q->line     = ptoken.line;
         match("Id");
         // TODO: 需要增加数组
         if (ptoken.type == "Semicolon") {  // 检测到分号, 变量声明
@@ -520,7 +520,10 @@ TreeNode* declaration_list() {
     return t;
 }
 
+// 前序遍历获取语法树打印
 void preOrder(TreeNode* t, string indent) {
+    // if (t != NULL)
+    //     out << "t->nodekind = " << t->nodekind << endl;
     if (t == NULL) {
         out << "NULL!" << endl;
         return;
@@ -571,15 +574,21 @@ void preOrder(TreeNode* t, string indent) {
         }
         return;
     }
+    if (t->nodekind == "ReturnStmt") {
+        out << indent << t->nodekind << ": {\n";
+        preOrder(t->child[0], indent + "  ");
+        return;
+    }
     if (t->nodekind == "Id") {
         out << indent << t->nodekind << ": " << t->name << endl;
     } else if (t->nodekind == "Const") {
         out << indent << t->nodekind << ": " << t->val << endl;
     } else if (t->nodekind != "Input") {
         out << indent << t->nodekind << ": {\n";
-    } else {
+    } else {  // ReturnStmt 会出现在这里输出
         out << indent << t->nodekind << endl;
     }
+    
     for (int i = 0; i < MAX_CHILDREN; ++i) {
         // out << "i = " << i << endl;
         if (t->child[i] == NULL) break;
@@ -590,7 +599,14 @@ void preOrder(TreeNode* t, string indent) {
     if (t->nodekind != "Id" && t->nodekind != "Input" && t->nodekind != "Const") {
         out << indent << "}\n";
     }
-    if (t->sibling != NULL) preOrder(t->sibling, indent);
+    // 删掉了下面一段, 因为发现下面这段会重复component的stmt的sibling
+    // out << "t->nodekind = " << t->nodekind << endl;
+    // if (t->sibling != NULL) {
+    //     if (t->sibling->nodekind == "ReturnStmt") {
+    //         out << "last kind: " << t->nodekind << endl;
+    //     }
+    //     preOrder(t->sibling, indent);
+    // }
 }
 
 void printParse(TreeNode* t) {
@@ -610,10 +626,13 @@ void printParse(TreeNode* t) {
     cout << "error cnt: " << error_cnt << endl;
 }
 
-TreeNode* parse() {
+TreeNode* parse(bool print) {
     TreeNode* t;
     ptoken = getToken();          // 获取第一个token, 开始语法分析
     t      = declaration_list();  // 获取声明列表, c-由一系列整数/函数声明组成
-    // printParse(t);
+    if (print) {
+        printParse(t);
+        cout << "parse print over !" << endl;
+    }
     return t;
 }

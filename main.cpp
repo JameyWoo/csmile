@@ -19,7 +19,8 @@ int main(int argc, char *argv[]) {
     read.open(string(argv[1]), ios::in);
     readin();
     scanning = true;
-    TreeNode* root = parse();
+    bool printParse = true;
+    TreeNode* root = parse(printParse);
     buildSymtab(root);
     typeCheck(root);
     codeGen(root);  // 目前只传递根节点进去, 暂时不写入文件

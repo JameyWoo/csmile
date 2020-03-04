@@ -1,12 +1,9 @@
 int fun1() {
     int a;
-    int b;
-    a = a + 123;
+    a = 123;
+    return a;
 }
 
-void fun2() {
-    int c;
-    int d;
-    d = 3 + 4;
-    c = d;
+int main() {
+    fun1();
 }

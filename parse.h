@@ -34,6 +34,6 @@ TreeNode* statement_list();
 TreeNode* compound_stmt();
 TreeNode* declaration();
 TreeNode* declaration_list();
-TreeNode* parse();
+TreeNode* parse(bool);
 
 #endif  // !__PARSE_H_

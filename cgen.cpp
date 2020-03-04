@@ -69,7 +69,7 @@ string cGen(TreeNode* root) {
         emit(l2 + ":\n");
     } else if ("CompareOp" == root->nodekind) {
         // 比较操作符, 作为
-        string reg1 = getR(), reg2 = cGen(root->child[0]), reg3 = cGen(root->child[0]);
+        string reg1 = getR(), reg2 = cGen(root->child[0]), reg3 = cGen(root->child[1]);
         emit(reg1 + " = " + reg2 + " " + root->op + " " + reg3 + "\n");
         return reg1;
     } else if ("PMOp" == root->nodekind || "MDOp" == root->nodekind) {

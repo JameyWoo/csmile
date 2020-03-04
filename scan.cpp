@@ -5,7 +5,7 @@ vector<Token> tokens;  // token流
 vector<string> tokenstypes({"ReversedWord", "EndFile", "Id", "Num", "Assign",
                             "CompareOp", "CalucateOp", "PMOP", "MDOP", "LeftBracket", "RightBracket",
                             "Semicolon", "Comment", "LeftBigBkt", "RightBigBkt", "Comma",
-                            "int", "void", "if", "else", "while", "return", "input", "output" });  // token的类型
+                            "int", "void", "if", "else", "while", "return", "input", "output"});  // token的类型
 
 vector<string> reversedWords({"if", "else", "while", "void", "int", "return", "input", "output"});  // 保留字
 
@@ -226,7 +226,7 @@ Token getToken() {        // 获取token, 主函数里循环调用
         currentToken = token_value;
     Token token;
     token.setToken(currentToken, token_value, line + 1);  // 行号从1开始
-    tokens.push_back(token);  // 保存token
-    if (token.type == "Comment") return getToken(); // 忽略注释
+    tokens.push_back(token);                              // 保存token
+    if (token.type == "Comment") return getToken();       // 忽略注释
     return token;
 }
