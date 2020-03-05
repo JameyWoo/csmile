@@ -72,4 +72,12 @@ struct TreeNode {
     TreeNode() {}
 };
 
+// 输出
+// parse解析的语法树
+extern ofstream out;
+// 符号表
+extern ofstream symtabOut;
+// 中间代码
+extern ofstream midCodeOut;
+
 #endif  // !__GLOBALS_H_

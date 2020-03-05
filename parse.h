@@ -7,7 +7,6 @@ using namespace std;
 
 static int blank = 0;
 static Token ptoken;
-static ofstream out("output.txt", ios::out);
 static int error_cnt = 0;
 
 void error();

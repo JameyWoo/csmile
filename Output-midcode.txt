@@ -1,0 +1,25 @@
+* cminus IR generate
+* FunDecl
+* Compound
+* LocVarDecl
+* Assign
+LD r1, 2
+* Const
+LD r2 2
+[r1] = r2
+* FunDecl
+* Compound
+* LocVarDecl
+* LocVarDecl
+* Assign
+LD r3, 2
+* Const
+LD r4 2
+[r3] = r4
+* Assign
+LD r5, 3
+* Const
+LD r6 3
+[r5] = r6
+* Output
+halt

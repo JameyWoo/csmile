@@ -1,10 +1,12 @@
 #include "code.h"
 
+ofstream midCodeOut("Output-midcode.txt", ios::out);
+
 void emitComment(string comment) {
-    cout << "* " << comment << endl;
+    midCodeOut << "* " << comment << endl;
     return;
 }
 
 void emit(string code) {
-    cout << code;
+    midCodeOut << code;
 }

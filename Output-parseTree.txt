@@ -3,26 +3,20 @@ Program:{
   body: [
     FunctionDeclaration {
       type: FunctionDeclaration
-      id: add
+      id: func
       params: [
-        int: a
-        int: b
+        void
       ]
       body: BlockStatement {
         type: BlockStatement
         body: [
           LocVarDecl:{
-            int: c
+            int: a
           }
           Assign: {
-            Id: c
-            PMOp: {
-              Id: a
-              Id: b
-            }
+            Id: a
+            Const: 2
           }
-          ReturnStmt: {
-            Id: c
         ]
       }
     }
@@ -36,16 +30,19 @@ Program:{
         type: BlockStatement
         body: [
           LocVarDecl:{
-            int: ans
+            int: a
+            int: b
           }
           Assign: {
-            Id: ans
-            Call: {
-              Id: add
-              Args: {
-                Const: 5
-              }
-            }
+            Id: a
+            Const: 2
+          }
+          Assign: {
+            Id: b
+            Const: 3
+          }
+          Output: {
+            Id: a
           }
         ]
       }

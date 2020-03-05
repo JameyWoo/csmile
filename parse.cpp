@@ -1,6 +1,8 @@
 #include "parse.h"
 #include "scan.h"
 
+ofstream out("Output-parseTree.txt", ios::out);
+
 void error() {
     error_cnt += 1;
     cout << "ErrorToken >> " << ptoken.type << ": " << ptoken.value << endl;
@@ -577,6 +579,7 @@ void preOrder(TreeNode* t, string indent) {
     if (t->nodekind == "ReturnStmt") {
         out << indent << t->nodekind << ": {\n";
         preOrder(t->child[0], indent + "  ");
+        out << indent << "}\n";
         return;
     }
     if (t->nodekind == "Id") {
@@ -593,20 +596,25 @@ void preOrder(TreeNode* t, string indent) {
         // out << "i = " << i << endl;
         if (t->child[i] == NULL) break;
         blank += 2;
+        if (i == 2 && t->nodekind == "Selection") {
+            if (t->child[2] != NULL) {
+                out << indent << "Else:\n";
+            }
+        }
         preOrder(t->child[i], indent + "  ");
         blank -= 2;
     }
     if (t->nodekind != "Id" && t->nodekind != "Input" && t->nodekind != "Const") {
         out << indent << "}\n";
     }
-    // 删掉了下面一段, 因为发现下面这段会重复component的stmt的sibling
+    // Assign 的sibling会重复
     // out << "t->nodekind = " << t->nodekind << endl;
-    // if (t->sibling != NULL) {
-    //     if (t->sibling->nodekind == "ReturnStmt") {
-    //         out << "last kind: " << t->nodekind << endl;
-    //     }
-    //     preOrder(t->sibling, indent);
-    // }
+    if (t->sibling != NULL) {
+        if (t->nodekind != "Assign") {
+            preOrder(t->sibling, indent);
+        }
+        
+    }
 }
 
 void printParse(TreeNode* t) {
@@ -618,11 +626,12 @@ void printParse(TreeNode* t) {
     out << "  ]\n"
         << "}\n";
     out.close();
-    ifstream in("output.txt", ios::in);
-    string s;
-    while (getline(in, s)) {
-        cout << s << endl;
-    }
+    // ifstream in("parse.txt", ios::in);
+    // 输出到控制台
+    // string s;
+    // while (getline(in, s)) {
+    //     cout << s << endl;
+    // }
     cout << "error cnt: " << error_cnt << endl;
 }
 

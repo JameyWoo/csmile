@@ -5,6 +5,7 @@
 #include "parse.h"
 #include "analyze.h"
 #include "cgen.h"
+#include "assembly.h"
 
 using namespace std;
 
@@ -24,4 +25,5 @@ int main(int argc, char *argv[]) {
     buildSymtab(root);
     typeCheck(root);
     codeGen(root);  // 目前只传递根节点进去, 暂时不写入文件
+    genAssembly(root);  // 生成汇编代码
 }

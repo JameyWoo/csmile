@@ -42,7 +42,7 @@ int st_lookup(string name) {
 void st_insert(string name, int lineno, int loc, int rank) {
     if (count(fun_names.begin(), fun_names.end(), name) != 0) return;
     if (rank == 2 || rank == 3) {
-        // cout << "insert: " << name << endl;
+        // symtabOut << "insert: " << name << endl;
         if (loc == -1) {  // 当这个变量存在在符号表中时
             symtabs[name].line.push_back(lineno);
         } else if (lineno != -1) {  // 不在符号表
@@ -55,7 +55,7 @@ void st_insert(string name, int lineno, int loc, int rank) {
             symtabs[name] = s;
         }
     } else if (rank == 1) {
-        // cout << "insert: " << name << endl;
+        // symtabOut << "insert: " << name << endl;
         if (loc == -1) {  // 当这个变量存在在符号表中时
             symtabs[name].line.push_back(lineno);
         } else {  // 不在符号表
@@ -68,26 +68,26 @@ void st_insert(string name, int lineno, int loc, int rank) {
 
 void printSymtab() {
     vec_symtabs.push_back(symtabs);
-    cout << "-------------------" << endl;
+    symtabOut << "-------------------" << endl;
     for (auto symtabs: vec_symtabs) {
-        cout << "function: " << fun_names.front() << endl;
+        symtabOut << "function: " << fun_names.front() << endl;
         fun_names.erase(fun_names.begin());
-        cout << "id -- Param --- lines\n";
+        symtabOut << "id -- Param --- lines\n";
         for (auto sone: symtabs) {
-            cout.setf(ios::left,ios::adjustfield);
-            cout << setw(5) << sone.first << ": " 
+            symtabOut.setf(ios::left,ios::adjustfield);
+            symtabOut << setw(5) << sone.first << ": " 
             << setw(3) 
             << (sone.second.rank == 3 ? "no" : "yes")
             << " | ";
             for (auto v: sone.second.line) {
-                cout << setw(3) << v << ' ';
+                symtabOut << setw(3) << v << ' ';
             }
-            cout << endl;
+            symtabOut << endl;
         }
-        cout << "-------------------" << endl;
+        symtabOut << "-------------------" << endl;
     }
 }
 
 void error(string errMsg) {
-    cout << errMsg << endl;
+    symtabOut << errMsg << endl;
 }

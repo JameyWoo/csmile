@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++11
 
-SRC = main.cpp scan.cpp parse.cpp analyze.cpp symtab.cpp cgen.cpp code.cpp
+SRC = main.cpp scan.cpp parse.cpp analyze.cpp symtab.cpp cgen.cpp code.cpp assembly.cpp
 OBJS = $(SRC:.cpp=.o)
 EXEC = main.exe
 
