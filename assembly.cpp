@@ -72,6 +72,8 @@ void genLocVarDecl(TreeNode* vars, string func_name) {
 }
 
 void genStmt(TreeNode* stmts) {
+    if (stmts == NULL) return;
+    
 }
 
 void genFunc(TreeNode* func) {
@@ -92,6 +94,8 @@ void genFunc(TreeNode* func) {
     // 在 func->child[3] 中, 如果有临时变量声明, 那么是它的child[0], 否则child[0]是正式的内容, 所以要判断
     if (func->child[3]->child[0]->nodekind == "LocVarDecl") {
         genLocVarDecl(func->child[3]->child[0], func->child[1]->name);    // ! 局部变量声明, 更新符号表. 这个时候要保存每个变量在栈中的位置
+        
+        // ! 这个是最麻烦的
         genStmt(func->child[3]->child[1]);          // 生成statement
     } else if (func->child[3]->child[0] != NULL) {  // 如果没有变量声明
         debug("before statement");
