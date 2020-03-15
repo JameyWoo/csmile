@@ -1,5 +1,11 @@
 * cminus IR generate
 * FunDecl
 * Compound
+* LocVarDecl
+* Assign
+LD r1, 1
+* Const
+LD r2 2
+[r1] = r2
 * Output
 halt

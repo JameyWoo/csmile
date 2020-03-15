@@ -6,8 +6,15 @@ map<string, map<string, string>> fun2param;
 map<string, map<string, string>> fun2var;
 int LFB_id = 0, LFE_id = 0;
 
-void genFunc(TreeNode*);  // 处理单个函数
+
 void debug(string);       // debug信息输出的函数
+void getParams(TreeNode* params, string func_name);
+int genLocVarDecl(TreeNode* vars, string func_name);
+void genOutput(TreeNode* output, map<string, string> var2stack);
+void genStmt(TreeNode* stmts, map<string, string> var2stack);
+void genFunc(TreeNode*);  // 处理单个函数
+void genAssembly(TreeNode* root)
+
 
 void debug(string info) {
     cout << info << endl;
@@ -43,23 +50,23 @@ void getParams(TreeNode* params, string func_name) {
     fun2param[func_name] = var2stack;
 }
 
-void genLocVarDecl(TreeNode* vars, string func_name) {
-    if (vars == NULL) return;
+int genLocVarDecl(TreeNode* vars, string func_name) {
+    if (vars == NULL) return 0;
     debug(vars->child[0]->name);
 
     // ! 需要统计有多少个局部变量, 以分配初始的栈空间
     stack<string> var_stack;
     map<string, string> var2stack;
-    int var_cnt = 0;
+    int var_cnt   = 0;
     TreeNode* var = vars;
     while (var != NULL) {
         var_cnt += 1;
         debug("var " + var->child[1]->name);
-        var_stack.push(var->child[1]->name);        
+        var_stack.push(var->child[1]->name);
         var = var->sibling;
     }
     debug("\tvar cnt: " + to_string(var_cnt));
-    
+
     // * 给局部变量分配栈空间
     int bias = -4;
     while (not var_stack.empty()) {
@@ -69,40 +76,121 @@ void genLocVarDecl(TreeNode* vars, string func_name) {
     }
 
     fun2var[func_name] = var2stack;
+    return var_cnt;
 }
 
-void genStmt(TreeNode* stmts) {
+void genOutput(TreeNode* output, map<string, string> var2stack) {
+    debug("in output: " + output->child[0]->nodekind);
+    debug("in output value: " + to_string(output->child[0]->val));
+    if (output->child[0]->nodekind == "Const") {
+        assout << "\t"
+               << "movl\t$.LC0, %eax" << endl
+               << "\t"
+               << "movl"
+               << "\t"
+               << "$" << to_string(output->child[0]->val)
+               << ", 4(%esp)" << endl
+               << "\t"
+               << "movl"
+               << "\t"
+               << "%eax, (%esp)"
+               << "\n\t"
+               << "call\tprintf" << endl;
+    } else if (output->child[0]->nodekind == "Id") {
+        debug("id: " + output->child[0]->name);
+        string id_loc = var2stack[output->child[0]->name];
+        assout << "\tmovl\t" << id_loc << ", %edx" << endl
+               << "\t"
+               << "movl\t$.LC0, %eax" << endl
+               << "\t"
+               << "movl"
+               << "\t"
+               << "%edx"
+               << ", 4(%esp)" << endl
+               << "\t"
+               << "movl"
+               << "\t"
+               << "%eax, (%esp)"
+               << "\n\t"
+               << "call\tprintf" << endl;
+    }
+}
+
+void genStmt(TreeNode* stmts, map<string, string> var2stack) {
     if (stmts == NULL) return;
-    
+    TreeNode* stmt = stmts;
+    while (stmt != NULL) {
+        debug(stmt->nodekind);
+
+        if (stmt->nodekind == "Output") {
+            genOutput(stmt, var2stack);
+        }
+
+        stmt = stmt->sibling;
+    }
 }
 
 void genFunc(TreeNode* func) {
     // ! 函数需要分析参数的栈情况, 写入符号表. 因此这个符号表非常重要.
-    debug("func name: " + func->child[1]->name);
+    string func_name = func->child[1]->name;
+    debug("func name: " + func_name);
     debug(func->child[2]->nodekind);  // 函数的参数
     debug(func->child[3]->nodekind);  // 函数的内容
 
     assout << "\t.global\t" << func->child[1]->name << endl
            << "\t.type\t" << func->child[1]->name << ", @function" << endl
            << func->child[1]->name << ":" << endl
-           << ".LFB" + to_string(LFB_id) << ":" << endl;
+           << ".LFB" + to_string(LFB_id) << ":" << endl
+           << "\t"
+           << "pushl"
+           << "\t"
+           << "%ebp\n"
+           << "\tmovl\t%esp, %ebp" << endl;
+
+    int stack_size = 16;
 
     // 对参数生成对应的符号表
     getParams(func->child[2], func->child[1]->name);
+    TreeNode* statement = NULL;
 
     debug(func->child[3]->child[0]->nodekind);
     // 在 func->child[3] 中, 如果有临时变量声明, 那么是它的child[0], 否则child[0]是正式的内容, 所以要判断
     if (func->child[3]->child[0]->nodekind == "LocVarDecl") {
-        genLocVarDecl(func->child[3]->child[0], func->child[1]->name);    // ! 局部变量声明, 更新符号表. 这个时候要保存每个变量在栈中的位置
-        
-        // ! 这个是最麻烦的
-        genStmt(func->child[3]->child[1]);          // 生成statement
+        // ! 局部变量声明, 更新符号表. 这个时候要保存每个变量在栈中的位置
+        int ext = genLocVarDecl(func->child[3]->child[0], func->child[1]->name);
+        stack_size += ext;
+        statement = func->child[3]->child[1];
+
+        // genStmt(func->child[3]->child[1], var2stack);          // 生成statement
     } else if (func->child[3]->child[0] != NULL) {  // 如果没有变量声明
-        debug("before statement");
-        genStmt(func->child[3]->child[0]);
+        // debug("before statement");
+        statement = func->child[3]->child[0];
     }
+    assout << "\t"
+           << "subl"
+           << "\t$" << stack_size << ", %esp" << endl;
+    map<string, string> var2stack;
+    for (auto x : fun2param[func_name]) {
+        var2stack[x.first] = x.second;
+    }
+    for (auto x : fun2var[func_name]) {
+        if (var2stack.count(x.first)) {
+            cout << "error ! param & loc_var repeat!" << endl;
+        } else {
+            var2stack[x.first] = x.second;
+        }
+    }
+
+    // ! 这个是最麻烦的
+    genStmt(statement, var2stack);
+
     // debug(func->child[3]->child[0]->nodekind);
     // debug(func->child[3]->child[1]->nodekind);
+
+    assout << "\t"
+           << "leave" << endl
+           << "\t"
+           << "ret" << endl;
 
     assout << ".LFE" + to_string(LFE_id) + ":" << endl
            << "\t.size\t" + func->child[1]->name << ", .-" << func->child[1]->name

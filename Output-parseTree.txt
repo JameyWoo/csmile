@@ -10,6 +10,19 @@ Program:{
       body: BlockStatement {
         type: BlockStatement
         body: [
+          LocVarDecl:{
+            int: a
+          }
+          Assign: {
+            Id: a
+            Const: 2
+          }
+          Output: {
+            Id: a
+          }
+          Output: {
+            Const: 1
+          }
           Output: {
             Const: 1
           }

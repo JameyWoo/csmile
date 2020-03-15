@@ -6,6 +6,20 @@
 	.type	main, @function
 main:
 .LFB0:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$17, %esp
+	movl	-4(%ebp), %edx
+	movl	$.LC0, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
+	movl	$.LC0, %eax
+	movl	$1, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
+	leave
+	ret
 .LFE0:
 	.size	main, .-main
 	.ident	"GCC: (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3"
