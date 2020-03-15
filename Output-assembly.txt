@@ -33,8 +33,24 @@ main:
 	movl	%edx, 4(%esp)
 	movl	%eax, (%esp)
 	call	printf
+	movl	-8(%ebp), %edx
+	addl	-4(%ebp), %edx
 	movl	%edx, -12(%ebp)
+	movl	-12(%ebp), %edx
+	movl	$.LC0, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
+	movl	-8(%ebp), %edx
+	subl	-4(%ebp), %edx
 	movl	%edx, -12(%ebp)
+	movl	-12(%ebp), %edx
+	movl	$.LC0, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
+	movl	$6, -12(%ebp)
+	movl	$2, -4(%ebp)
 	movl	-12(%ebp), %edx
 	movl	$.LC0, %eax
 	movl	%edx, 4(%esp)

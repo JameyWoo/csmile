@@ -6,7 +6,7 @@ map<string, map<string, string>> fun2param;
 map<string, map<string, string>> fun2var;
 int LFB_id = 0, LFE_id = 0;
 
-void debug(string);  // debug信息输出的函数
+void debug(string); // // debug信息输出的函数
 void getParams(TreeNode* params, string func_name);
 int genLocVarDecl(TreeNode* vars, string func_name);
 void genOutput(TreeNode* output, map<string, string> var2stack);
@@ -29,9 +29,9 @@ void debug(string info) {
 
 void getParams(TreeNode* params, string func_name) {
     if (params == NULL) return;
-    debug("params->child[0]->nodekind : " + params->child[0]->nodekind);
+    // debug("params->child[0]->nodekind : " + params->child[0]->nodekind);
     if (params->child[0]->nodekind == "void") {
-        debug("param void");
+        // debug("param void");
         return;
     }
 
@@ -40,8 +40,8 @@ void getParams(TreeNode* params, string func_name) {
     // 接下来是有参数的
     TreeNode* param = params->child[0];
     while (param != NULL) {
-        debug("param: " + param->nodekind);
-        debug(param->child[0]->nodekind + " " + param->child[1]->name);
+        // debug("param: " + param->nodekind);
+        // debug(param->child[0]->nodekind + " " + param->child[1]->name);
         param_stack.push(param->child[1]->name);
         param = param->sibling;
     }
@@ -59,7 +59,7 @@ void getParams(TreeNode* params, string func_name) {
 
 int genLocVarDecl(TreeNode* vars, string func_name) {
     if (vars == NULL) return 0;
-    debug(vars->child[0]->name);
+    // debug(vars->child[0]->name);
 
     // ! 需要统计有多少个局部变量, 以分配初始的栈空间
     stack<string> var_stack;
@@ -68,11 +68,11 @@ int genLocVarDecl(TreeNode* vars, string func_name) {
     TreeNode* var = vars;
     while (var != NULL) {
         var_cnt += 1;
-        debug("var " + var->child[1]->name);
+        // debug("var " + var->child[1]->name);
         var_stack.push(var->child[1]->name);
         var = var->sibling;
     }
-    debug("\tvar cnt: " + to_string(var_cnt));
+    // debug("\tvar cnt: " + to_string(var_cnt));
 
     // * 给局部变量分配栈空间
     int bias = -4;
@@ -87,8 +87,8 @@ int genLocVarDecl(TreeNode* vars, string func_name) {
 }
 
 void genOutput(TreeNode* output, map<string, string> var2stack) {
-    debug("in output: " + output->child[0]->nodekind);
-    debug("in output value: " + to_string(output->child[0]->val));
+    // debug("in output: " + output->child[0]->nodekind);
+    // debug("in output value: " + to_string(output->child[0]->val));
     if (output->child[0]->nodekind == "Const") {
         assout << "\t"
                << "movl\t$.LC0, %eax" << endl
@@ -104,7 +104,7 @@ void genOutput(TreeNode* output, map<string, string> var2stack) {
                << "\n\t"
                << "call\tprintf" << endl;
     } else if (output->child[0]->nodekind == "Id") {
-        debug("id: " + output->child[0]->name);
+        // debug("id: " + output->child[0]->name);
         string id_loc = var2stack[output->child[0]->name];
         assout << "\tmovl\t" << id_loc << ", %edx" << endl
                << "\t"
@@ -127,7 +127,7 @@ void genStmt(TreeNode* stmts, map<string, string> var2stack) {
     if (stmts == NULL) return;
     TreeNode* stmt = stmts;
     while (stmt != NULL) {
-        debug(stmt->nodekind);
+        // debug(stmt->nodekind);
 
         if (stmt->nodekind == "Output") {
             genOutput(stmt, var2stack);
@@ -140,15 +140,15 @@ void genStmt(TreeNode* stmts, map<string, string> var2stack) {
 }
 
 void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
-    debug("assign " + assign->child[0]->name);
-    debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
+    // debug("assign " + assign->child[0]->name);
+    // debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
     string left_loc = var2stack[assign->child[0]->name];
     if (assign->child[1]->nodekind == "Const") {
         assout << "\tmovl\t$"
                << to_string(assign->child[1]->val)
                << ", " << left_loc << endl;
     } else if (assign->child[1]->nodekind == "Id") {
-        debug("assign->child[1]->name: " + assign->child[1]->name);
+        // debug("assign->child[1]->name: " + assign->child[1]->name);
         string right_loc = var2stack[assign->child[1]->name];
         // 先将该值赋值给某个寄存器, 然后再将寄存器赋值给左值
         assout << "\tmovl\t" << right_loc << ", %edx" << endl
@@ -157,7 +157,7 @@ void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
         genAssign(assign->child[1], var2stack, true);
         assout << "\tmovl\t%edx, " << left_loc << endl;
     } else if (assign->child[1]->nodekind == "PMOp") {
-        debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
+        // debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
         // 计算(加减乘除)
         genCalc(assign->child[1], var2stack);
         assout << "\tmovl\t%edx, " << left_loc << endl;
@@ -168,24 +168,37 @@ void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
 }
 
 void genCalc(TreeNode* calc, map<string, string> var2stack) {
+    // debug("calc->nodekind: " + calc->nodekind);
+    // TODO: 发现一个bug, * 和 / 无法被识别
+    debug("calc->op: " + calc->op);
     // 计算
-    if (calc->nodekind == "PMOp") {
+    if (calc->nodekind == "PMOp" || calc->nodekind == "MDOP") {
         // TODO: 之前没有区分加减, 乘除, 而是简单地都化为PMOp, MDOp, 需要做区分
-        debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
-        string left_loc = var2stack[calc->child[0]->name];
+        // debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
+        
+        string left_loc  = var2stack[calc->child[0]->name];
         string right_loc = var2stack[calc->child[1]->name];
         assout << "\tmovl\t" << left_loc << ", %edx" << endl;
-    } else if (calc->nodekind == "MDOP") {
-
+        
+        if (calc->op == "+") {
+            assout << "\taddl\t" << right_loc << ", %edx" << endl;
+        } else if (calc->op == "-") {
+            assout << "\tsubl\t" << right_loc << ", %edx" << endl;
+        } else if (calc->op == "*") {
+            assout << "\timull\t" << right_loc << ", %edx" << endl;
+        } else if (calc->op == "/") {
+            assout << "\tsarl\t$31, %edx" << endl
+                   << "\tidivl\t" << right_loc << endl;
+        }
     }
 }
 
 void genFunc(TreeNode* func) {
     // ! 函数需要分析参数的栈情况, 写入符号表. 因此这个符号表非常重要.
     string func_name = func->child[1]->name;
-    debug("func name: " + func_name);
-    debug(func->child[2]->nodekind);  // 函数的参数
-    debug(func->child[3]->nodekind);  // 函数的内容
+    // debug("func name: " + func_name);
+    // debug(func->child[2]->nodekind);  // 函数的参数
+    // debug(func->child[3]->nodekind);  // 函数的内容
 
     assout << "\t.global\t" << func->child[1]->name << endl
            << "\t.type\t" << func->child[1]->name << ", @function" << endl
@@ -203,7 +216,7 @@ void genFunc(TreeNode* func) {
     getParams(func->child[2], func->child[1]->name);
     TreeNode* statement = NULL;
 
-    debug(func->child[3]->child[0]->nodekind);
+    // debug(func->child[3]->child[0]->nodekind);
     // 在 func->child[3] 中, 如果有临时变量声明, 那么是它的child[0], 否则child[0]是正式的内容, 所以要判断
     if (func->child[3]->child[0]->nodekind == "LocVarDecl") {
         // ! 局部变量声明, 更新符号表. 这个时候要保存每个变量在栈中的位置
@@ -213,7 +226,7 @@ void genFunc(TreeNode* func) {
 
         // genStmt(func->child[3]->child[1], var2stack);          // 生成statement
     } else if (func->child[3]->child[0] != NULL) {  // 如果没有变量声明
-        // debug("before statement");
+        // // debug("before statement");
         statement = func->child[3]->child[0];
     }
     assout << "\t"
@@ -234,8 +247,8 @@ void genFunc(TreeNode* func) {
     // ! 这个是最麻烦的
     genStmt(statement, var2stack);
 
-    // debug(func->child[3]->child[0]->nodekind);
-    // debug(func->child[3]->child[1]->nodekind);
+    // // debug(func->child[3]->child[0]->nodekind);
+    // // debug(func->child[3]->child[1]->nodekind);
 
     assout << "\t"
            << "leave" << endl

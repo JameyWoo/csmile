@@ -72,14 +72,50 @@ Program:{
               Id: c
             }
           }
+          Output: {
+            Id: a
+          }
           Assign: {
             Id: a
             PMOp: {
-              PMOp: {
-                Id: b
-                Id: c
-              }
-              Id: d
+              Id: b
+              Id: c
+            }
+          }
+          Assign: {
+            Id: a
+            PMOp: {
+              Id: b
+              Id: c
+            }
+          }
+          Output: {
+            Id: a
+          }
+          Assign: {
+            Id: a
+            Const: 6
+          }
+          Assign: {
+            Id: a
+            Const: 6
+          }
+          Assign: {
+            Id: c
+            Const: 2
+          }
+          Assign: {
+            Id: a
+            MDOp: {
+              Id: a
+              Id: c
+            }
+          }
+          Assign: {
+            Id: a
+            MDOp: {
+              Id: a
+              Id: c
             }
           }
           Output: {
