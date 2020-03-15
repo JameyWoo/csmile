@@ -2,10 +2,22 @@
 * FunDecl
 * Compound
 * LocVarDecl
+* LocVarDecl
+* LocVarDecl
 * Assign
-LD r1, 1
+LD r1, 3
 * Const
-LD r2 2
+LD r2 123
 [r1] = r2
+* Assign
+LD r3, 2
+* Const
+LD r4 666
+[r3] = r4
+* Assign
+LD r5, 1
+* Const
+LD r6 2
+[r5] = r6
 * Output
 halt

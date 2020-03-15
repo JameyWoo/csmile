@@ -12,10 +12,75 @@ Program:{
         body: [
           LocVarDecl:{
             int: a
+            int: b
+            int: c
+          }
+          Assign: {
+            Id: c
+            Const: 123
+          }
+          Assign: {
+            Id: b
+            Const: 666
           }
           Assign: {
             Id: a
             Const: 2
+          }
+          Output: {
+            Id: a
+          }
+          Assign: {
+            Id: a
+            Id: c
+          }
+          Assign: {
+            Id: a
+            Id: c
+          }
+          Output: {
+            Id: a
+          }
+          Assign: {
+            Id: a
+            Assign: {
+              Id: c
+              Id: b
+            }
+          }
+          Assign: {
+            Id: a
+            Assign: {
+              Id: c
+              Id: b
+            }
+          }
+          Output: {
+            Id: a
+          }
+          Assign: {
+            Id: a
+            PMOp: {
+              Id: b
+              Id: c
+            }
+          }
+          Assign: {
+            Id: a
+            PMOp: {
+              Id: b
+              Id: c
+            }
+          }
+          Assign: {
+            Id: a
+            PMOp: {
+              PMOp: {
+                Id: b
+                Id: c
+              }
+              Id: d
+            }
           }
           Output: {
             Id: a

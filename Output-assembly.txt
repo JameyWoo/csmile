@@ -8,8 +8,34 @@ main:
 .LFB0:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$17, %esp
+	subl	$19, %esp
+	movl	$123, -4(%ebp)
+	movl	$666, -8(%ebp)
+	movl	$2, -12(%ebp)
+	movl	-12(%ebp), %edx
+	movl	$.LC0, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
 	movl	-4(%ebp), %edx
+	movl	%edx, -12(%ebp)
+	movl	-12(%ebp), %edx
+	movl	$.LC0, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
+	movl	-8(%ebp), %edx
+	movl	%edx, -4(%ebp)
+	movl	-4(%ebp), %edx
+	movl	%edx, -12(%ebp)
+	movl	-12(%ebp), %edx
+	movl	$.LC0, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
+	movl	%edx, -12(%ebp)
+	movl	%edx, -12(%ebp)
+	movl	-12(%ebp), %edx
 	movl	$.LC0, %eax
 	movl	%edx, 4(%esp)
 	movl	%eax, (%esp)

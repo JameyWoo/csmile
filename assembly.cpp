@@ -6,15 +6,22 @@ map<string, map<string, string>> fun2param;
 map<string, map<string, string>> fun2var;
 int LFB_id = 0, LFE_id = 0;
 
-
-void debug(string);       // debug信息输出的函数
+void debug(string);  // debug信息输出的函数
 void getParams(TreeNode* params, string func_name);
 int genLocVarDecl(TreeNode* vars, string func_name);
 void genOutput(TreeNode* output, map<string, string> var2stack);
 void genStmt(TreeNode* stmts, map<string, string> var2stack);
+// need代表是否是递归调用assign, 如果是, 那么需要将右值赋给寄存器%edx
+void genAssign(TreeNode* assign, map<string, string> var2stack, bool need);
+void genCalc(TreeNode* calc, map<string, string> var2stack);
 void genFunc(TreeNode*);  // 处理单个函数
-void genAssembly(TreeNode* root)
+void genAssembly(TreeNode* root);
 
+/** 寄存器约定
+ * %eax 用来做返回值
+ * 在 output 函数中, %edx用来存储要输出的值
+ * 在Assign中, %edx用来保存右边的assign
+ */
 
 void debug(string info) {
     cout << info << endl;
@@ -124,9 +131,52 @@ void genStmt(TreeNode* stmts, map<string, string> var2stack) {
 
         if (stmt->nodekind == "Output") {
             genOutput(stmt, var2stack);
+        } else if (stmt->nodekind == "Assign") {
+            genAssign(stmt, var2stack, false);
         }
 
         stmt = stmt->sibling;
+    }
+}
+
+void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
+    debug("assign " + assign->child[0]->name);
+    debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
+    string left_loc = var2stack[assign->child[0]->name];
+    if (assign->child[1]->nodekind == "Const") {
+        assout << "\tmovl\t$"
+               << to_string(assign->child[1]->val)
+               << ", " << left_loc << endl;
+    } else if (assign->child[1]->nodekind == "Id") {
+        debug("assign->child[1]->name: " + assign->child[1]->name);
+        string right_loc = var2stack[assign->child[1]->name];
+        // 先将该值赋值给某个寄存器, 然后再将寄存器赋值给左值
+        assout << "\tmovl\t" << right_loc << ", %edx" << endl
+               << "\tmovl\t%edx, " << left_loc << endl;
+    } else if (assign->child[1]->nodekind == "Assign") {
+        genAssign(assign->child[1], var2stack, true);
+        assout << "\tmovl\t%edx, " << left_loc << endl;
+    } else if (assign->child[1]->nodekind == "PMOp") {
+        debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
+        // 计算(加减乘除)
+        genCalc(assign->child[1], var2stack);
+        assout << "\tmovl\t%edx, " << left_loc << endl;
+    }
+    if (need) {
+        assout << "\tmovl\t" << left_loc << ", %edx" << endl;
+    }
+}
+
+void genCalc(TreeNode* calc, map<string, string> var2stack) {
+    // 计算
+    if (calc->nodekind == "PMOp") {
+        // TODO: 之前没有区分加减, 乘除, 而是简单地都化为PMOp, MDOp, 需要做区分
+        debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
+        string left_loc = var2stack[calc->child[0]->name];
+        string right_loc = var2stack[calc->child[1]->name];
+        assout << "\tmovl\t" << left_loc << ", %edx" << endl;
+    } else if (calc->nodekind == "MDOP") {
+
     }
 }
 
