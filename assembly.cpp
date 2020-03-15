@@ -156,7 +156,7 @@ void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
     } else if (assign->child[1]->nodekind == "Assign") {
         genAssign(assign->child[1], var2stack, true);
         assout << "\tmovl\t%edx, " << left_loc << endl;
-    } else if (assign->child[1]->nodekind == "PMOp") {
+    } else if (assign->child[1]->nodekind == "PMOp" || assign->child[1]->nodekind == "MDOP") {
         // debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
         // 计算(加减乘除)
         genCalc(assign->child[1], var2stack);
@@ -169,27 +169,24 @@ void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
 
 void genCalc(TreeNode* calc, map<string, string> var2stack) {
     // debug("calc->nodekind: " + calc->nodekind);
-    // TODO: 发现一个bug, * 和 / 无法被识别
     debug("calc->op: " + calc->op);
     // 计算
-    if (calc->nodekind == "PMOp" || calc->nodekind == "MDOP") {
-        // TODO: 之前没有区分加减, 乘除, 而是简单地都化为PMOp, MDOp, 需要做区分
-        // debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
-        
-        string left_loc  = var2stack[calc->child[0]->name];
-        string right_loc = var2stack[calc->child[1]->name];
-        assout << "\tmovl\t" << left_loc << ", %edx" << endl;
-        
-        if (calc->op == "+") {
-            assout << "\taddl\t" << right_loc << ", %edx" << endl;
-        } else if (calc->op == "-") {
-            assout << "\tsubl\t" << right_loc << ", %edx" << endl;
-        } else if (calc->op == "*") {
-            assout << "\timull\t" << right_loc << ", %edx" << endl;
-        } else if (calc->op == "/") {
-            assout << "\tsarl\t$31, %edx" << endl
-                   << "\tidivl\t" << right_loc << endl;
-        }
+    // TODO: 之前没有区分加减, 乘除, 而是简单地都化为PMOp, MDOp, 需要做区分
+    // debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
+    
+    string left_loc  = var2stack[calc->child[0]->name];
+    string right_loc = var2stack[calc->child[1]->name];
+    assout << "\tmovl\t" << left_loc << ", %edx" << endl;
+    
+    if (calc->op == "+") {
+        assout << "\taddl\t" << right_loc << ", %edx" << endl;
+    } else if (calc->op == "-") {
+        assout << "\tsubl\t" << right_loc << ", %edx" << endl;
+    } else if (calc->op == "*") {
+        assout << "\timull\t" << right_loc << ", %edx" << endl;
+    } else if (calc->op == "/") {
+        assout << "\tsarl\t$31, %edx" << endl
+                << "\tidivl\t" << right_loc << endl;
     }
 }
 
