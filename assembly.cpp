@@ -2,7 +2,7 @@
 
 ofstream assout("Output-assembly.txt", ios::out);
 // 存储变量在栈中的位置, 用map
-map<string, string> var2stack; 
+map<string, string> var2stack;
 
 void genFunc(TreeNode*);  // 处理单个函数
 void debug(string);       // debug信息输出的函数
@@ -14,6 +14,9 @@ void debug(string info) {
 void genLocVarDecl(TreeNode* vars) {
     if (vars == NULL) return;
     // ! 需要统计有多少个局部变量, 以分配初始的栈空间
+}
+
+void genStmt(TreeNode* stmts) {
 }
 
 void genFunc(TreeNode* func) {
@@ -47,6 +50,9 @@ void genAssembly(TreeNode* root) {
         genFunc(func);
         func = func->sibling;
     }
+
+    assout << "\t.ident	\"GCC: (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3\"" << endl
+           << "\t.section.note.GNU - stack,\"\",@progbits " << endl;
 
     cout << "the end..." << endl;
 }
