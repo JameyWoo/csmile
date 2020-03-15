@@ -591,7 +591,7 @@ void preOrder(TreeNode* t, string indent) {
     } else {  // ReturnStmt 会出现在这里输出
         out << indent << t->nodekind << endl;
     }
-    
+
     for (int i = 0; i < MAX_CHILDREN; ++i) {
         // out << "i = " << i << endl;
         if (t->child[i] == NULL) break;
@@ -613,7 +613,6 @@ void preOrder(TreeNode* t, string indent) {
         if (t->nodekind != "Assign") {
             preOrder(t->sibling, indent);
         }
-        
     }
 }
 

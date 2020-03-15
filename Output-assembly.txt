@@ -2,12 +2,12 @@
 .LC0:
 	.string "%d\n"
 	.text
-	.global	func
-	.type	func, @function
-func:
+	.global	func1
+	.type	func1, @function
+func1:
 .LFB0:
 .LFE0:
-	.size	func, .-func
+	.size	func1, .-func1
 	.global	main
 	.type	main, @function
 main:

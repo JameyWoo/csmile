@@ -1,25 +1,56 @@
 * cminus IR generate
 * FunDecl
 * Compound
-* LocVarDecl
-* Assign
-LD r1, 2
+* Selection
+* CompareOp
+* Id
+LD r2, [4]
 * Const
-LD r2 2
-[r1] = r2
+LD r3 1
+r1 = r2 == r3
+if r1 goto L1
+goto L2
+L1:
+* Assign
+LD r4, 5
+* Const
+LD r5 0
+[r4] = r5
+* Iteration
+L3:
+* CompareOp
+* Id
+LD r7, [5]
+* Const
+LD r8 10
+r6 = r7 < r8
+if r6 goto L4
+* Assign
+LD r9, 5
+* PMOp
+* Id
+LD r11, [5]
+* Const
+LD r12 1
+r10 = r11 + r12
+[r9] = r10
+L4:
+L2:
+* ReturnStmt
 * FunDecl
 * Compound
 * LocVarDecl
 * LocVarDecl
+* LocVarDecl
 * Assign
-LD r3, 2
+LD r13, 4
 * Const
-LD r4 2
-[r3] = r4
+LD r14 1
+[r13] = r14
 * Assign
-LD r5, 3
+LD r15, 6
 * Const
-LD r6 3
-[r5] = r6
-* Output
+LD r16 4
+[r15] = r16
+* ReturnStmt
 halt

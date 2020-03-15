@@ -1,4 +1,5 @@
 int func1(int a, int b, int c) {
+    /* int a;*/
     if (a == 1) {
         b = 0;
         while (b < 10) {
