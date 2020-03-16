@@ -17,7 +17,14 @@ int main(void) {
     a = 6;
     c = 2;
     a = a * c;
-    a = a * c;
+    output(a);
+    a = a / c;
     output(a);
     output(1);
+    a = 1;
+    if (a == 1) {
+        output(999);
+    } else {
+        output(555);
+    }
 }

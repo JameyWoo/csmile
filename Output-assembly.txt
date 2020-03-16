@@ -52,6 +52,18 @@ main:
 	movl	$6, -12(%ebp)
 	movl	$2, -4(%ebp)
 	movl	-12(%ebp), %edx
+	imull	-4(%ebp), %edx
+	movl	%edx, -12(%ebp)
+	movl	-12(%ebp), %edx
+	movl	$.LC0, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	printf
+	movl	-12(%ebp), %edx
+	sarl	$31, %edx
+	idivl	-4(%ebp)
+	movl	%edx, -12(%ebp)
+	movl	-12(%ebp), %edx
 	movl	$.LC0, %eax
 	movl	%edx, 4(%esp)
 	movl	%eax, (%esp)
@@ -60,6 +72,7 @@ main:
 	movl	$1, 4(%esp)
 	movl	%eax, (%esp)
 	call	printf
+	movl	$1, -12(%ebp)
 	leave
 	ret
 .LFE0:

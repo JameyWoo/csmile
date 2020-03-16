@@ -111,6 +111,16 @@ Program:{
               Id: c
             }
           }
+          Output: {
+            Id: a
+          }
+          Assign: {
+            Id: a
+            MDOp: {
+              Id: a
+              Id: c
+            }
+          }
           Assign: {
             Id: a
             MDOp: {
@@ -124,8 +134,33 @@ Program:{
           Output: {
             Const: 1
           }
+          Assign: {
+            Id: a
+            Const: 1
+          }
           Output: {
             Const: 1
+          }
+          Assign: {
+            Id: a
+            Const: 1
+          }
+          Assign: {
+            Id: a
+            Const: 1
+          }
+          Selection: {
+            CompareOp: {
+              Id: a
+              Const: 1
+            }
+            Output: {
+              Const: 999
+            }
+          Else:
+            Output: {
+              Const: 555
+            }
           }
         ]
       }
