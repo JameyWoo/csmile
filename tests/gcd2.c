@@ -1,3 +1,6 @@
+#include <iostream>
+using namespace std;
+
 int gcd(int u, int v) {
     if (v == 0) {
         return u;
@@ -8,10 +11,9 @@ int gcd(int u, int v) {
     }
 }
 
-void main(void) {
+int main() {
     int x;
     int y;
-    x = input();
-    y = input();
-    output(gcd(x, y));
+    cin >> x >> y;
+    cout << gcd(x, y);
 }

@@ -6,7 +6,7 @@ map<string, map<string, string>> fun2param;
 map<string, map<string, string>> fun2var;
 int LFB_id = 0, LFE_id = 0;
 
-void debug(string); // // debug信息输出的函数
+void debug(string);  // // debug信息输出的函数
 void getParams(TreeNode* params, string func_name);
 int genLocVarDecl(TreeNode* vars, string func_name);
 void genOutput(TreeNode* output, map<string, string> var2stack);
@@ -180,21 +180,25 @@ void genCalc(TreeNode* calc, map<string, string> var2stack) {
     // debug("calc->op: " + calc->op);
     // 计算
     // debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
-    
+
     string left_loc  = var2stack[calc->child[0]->name];
     string right_loc = var2stack[calc->child[1]->name];
-    assout << "\tmovl\t" << left_loc << ", %edx" << endl;
-    
-    if (calc->op == "+") {
-        assout << "\taddl\t" << right_loc << ", %edx" << endl;
-    } else if (calc->op == "-") {
-        assout << "\tsubl\t" << right_loc << ", %edx" << endl;
-    } else if (calc->op == "*") {
-        assout << "\timull\t" << right_loc << ", %edx" << endl;
-    } else if (calc->op == "/") {
-        // TODO: 除法暂时有点bug
-        assout << "\tsarl\t$31, %edx" << endl
-                << "\tidivl\t" << right_loc << endl;
+    if (calc->op == "/") {
+        assout << "\tmovl\t" << left_loc << ", %eax" << endl
+               << "\tmovl\t%eax, %edx" << endl
+               << "\tsarl\t$31, %edx" << endl
+               << "\tidivl\t" << right_loc << endl
+               << "\tmovl\t%eax, %edx" << endl;
+    } else {
+        assout << "\tmovl\t" << left_loc << ", %edx" << endl;
+
+        if (calc->op == "+") {
+            assout << "\taddl\t" << right_loc << ", %edx" << endl;
+        } else if (calc->op == "-") {
+            assout << "\tsubl\t" << right_loc << ", %edx" << endl;
+        } else if (calc->op == "*") {
+            assout << "\timull\t" << right_loc << ", %edx" << endl;
+        }
     }
 }
 

@@ -3,21 +3,24 @@
 * Compound
 * LocVarDecl
 * LocVarDecl
-* LocVarDecl
 * Assign
-LD r1, 3
+LD r1, 1
 * Const
-LD r2 123
+LD r2 6
 [r1] = r2
 * Assign
 LD r3, 2
 * Const
-LD r4 666
+LD r4 2
 [r3] = r4
 * Assign
 LD r5, 1
-* Const
-LD r6 2
+* MDOp
+* Id
+LD r7, [1]
+* Id
+LD r8, [2]
+r6 = r7 + r8
 [r5] = r6
 * Output
 halt

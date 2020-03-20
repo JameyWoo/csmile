@@ -13,154 +13,24 @@ Program:{
           LocVarDecl:{
             int: a
             int: b
-            int: c
           }
           Assign: {
-            Id: c
-            Const: 123
+            Id: a
+            Const: 6
           }
           Assign: {
             Id: b
-            Const: 666
-          }
-          Assign: {
-            Id: a
-            Const: 2
-          }
-          Output: {
-            Id: a
-          }
-          Assign: {
-            Id: a
-            Id: c
-          }
-          Assign: {
-            Id: a
-            Id: c
-          }
-          Output: {
-            Id: a
-          }
-          Assign: {
-            Id: a
-            Assign: {
-              Id: c
-              Id: b
-            }
-          }
-          Assign: {
-            Id: a
-            Assign: {
-              Id: c
-              Id: b
-            }
-          }
-          Output: {
-            Id: a
-          }
-          Assign: {
-            Id: a
-            PMOp: {
-              Id: b
-              Id: c
-            }
-          }
-          Assign: {
-            Id: a
-            PMOp: {
-              Id: b
-              Id: c
-            }
-          }
-          Output: {
-            Id: a
-          }
-          Assign: {
-            Id: a
-            PMOp: {
-              Id: b
-              Id: c
-            }
-          }
-          Assign: {
-            Id: a
-            PMOp: {
-              Id: b
-              Id: c
-            }
-          }
-          Output: {
-            Id: a
-          }
-          Assign: {
-            Id: a
-            Const: 6
-          }
-          Assign: {
-            Id: a
-            Const: 6
-          }
-          Assign: {
-            Id: c
             Const: 2
           }
           Assign: {
             Id: a
             MDOp: {
               Id: a
-              Id: c
+              Id: b
             }
           }
           Output: {
             Id: a
-          }
-          Assign: {
-            Id: a
-            MDOp: {
-              Id: a
-              Id: c
-            }
-          }
-          Assign: {
-            Id: a
-            MDOp: {
-              Id: a
-              Id: c
-            }
-          }
-          Output: {
-            Id: a
-          }
-          Output: {
-            Const: 1
-          }
-          Assign: {
-            Id: a
-            Const: 1
-          }
-          Output: {
-            Const: 1
-          }
-          Assign: {
-            Id: a
-            Const: 1
-          }
-          Assign: {
-            Id: a
-            Const: 1
-          }
-          Selection: {
-            CompareOp: {
-              Id: a
-              Const: 1
-            }
-            Output: {
-              Const: 999
-            }
-          Else:
-            Output: {
-              Const: 555
-            }
           }
         ]
       }
