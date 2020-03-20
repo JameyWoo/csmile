@@ -10,6 +10,7 @@ void debug(string);  // // debug信息输出的函数
 void getParams(TreeNode* params, string func_name);
 int genLocVarDecl(TreeNode* vars, string func_name);
 void genOutput(TreeNode* output, map<string, string> var2stack);
+void genInput(TreeNode* input, string left_loc);
 void genStmt(TreeNode* stmts, map<string, string> var2stack);
 // need代表是否是递归调用assign, 如果是, 那么需要将右值赋给寄存器%edx
 void genAssign(TreeNode* assign, map<string, string> var2stack, bool need);
@@ -125,6 +126,16 @@ void genOutput(TreeNode* output, map<string, string> var2stack) {
     }
 }
 
+void genInput(TreeNode* input, string left_loc) {
+    debug(input->nodekind);
+    assout << "\tmovl\t$.LC1, %eax" << endl
+           << "\tleal\t" << left_loc << ", %edx" << endl
+           << "\tmovl\t"
+           << "%edx, 4(%esp)" << endl
+           << "\tmovl\t%eax, (%esp)" << endl
+           << "\tcall\t__isoc99_scanf" << endl;
+}
+
 void genStmt(TreeNode* stmts, map<string, string> var2stack) {
     if (stmts == NULL) return;
     TreeNode* stmt = stmts;
@@ -169,6 +180,8 @@ void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
         // debug("assign->child[1]->nodekind: " + assign->child[1]->nodekind);
         genCalc(assign->child[1], var2stack);
         assout << "\tmovl\t%edx, " << left_loc << endl;
+    } else if (assign->child[1]->nodekind == "Input") {
+        genInput(assign->child[1], left_loc);  // 第二个参数是赋值的地址
     }
     if (need) {
         assout << "\tmovl\t" << left_loc << ", %edx" << endl;
@@ -275,6 +288,9 @@ void genAssembly(TreeNode* root) {
            << ".LC0:" << endl
            << "\t"
            << ".string \"%d\\n\"" << endl
+           << ".LC1:" << endl
+           << "\t"
+           << ".string \"%d\"" << endl
            << "\t"
            << ".text" << endl;
 

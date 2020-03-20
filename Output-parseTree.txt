@@ -11,26 +11,14 @@ Program:{
         type: BlockStatement
         body: [
           LocVarDecl:{
-            int: a
-            int: b
+            int: x
           }
           Assign: {
-            Id: a
-            Const: 6
-          }
-          Assign: {
-            Id: b
-            Const: 2
-          }
-          Assign: {
-            Id: a
-            MDOp: {
-              Id: a
-              Id: b
-            }
+            Id: x
+            Input
           }
           Output: {
-            Id: a
+            Id: x
           }
         ]
       }

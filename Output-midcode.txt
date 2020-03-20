@@ -2,25 +2,9 @@
 * FunDecl
 * Compound
 * LocVarDecl
-* LocVarDecl
 * Assign
 LD r1, 1
-* Const
-LD r2 6
-[r1] = r2
-* Assign
-LD r3, 2
-* Const
-LD r4 2
-[r3] = r4
-* Assign
-LD r5, 1
-* MDOp
-* Id
-LD r7, [1]
-* Id
-LD r8, [2]
-r6 = r7 + r8
-[r5] = r6
+* Input
+[r1] = 
 * Output
 halt

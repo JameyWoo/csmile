@@ -1,6 +1,8 @@
 	.section	.rodata
 .LC0:
 	.string "%d\n"
+.LC1:
+	.string "%d"
 	.text
 	.global	main
 	.type	main, @function
@@ -8,16 +10,13 @@ main:
 .LFB0:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$18, %esp
-	movl	$6, -8(%ebp)
-	movl	$2, -4(%ebp)
-	movl	-8(%ebp), %eax
-	movl	%eax, %edx
-	sarl	$31, %edx
-	idivl	-4(%ebp)
-	movl	%eax, %edx
-	movl	%edx, -8(%ebp)
-	movl	-8(%ebp), %edx
+	subl	$17, %esp
+	movl	$.LC1, %eax
+	leal	-4(%ebp), %edx
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	__isoc99_scanf
+	movl	-4(%ebp), %edx
 	movl	$.LC0, %eax
 	movl	%edx, 4(%esp)
 	movl	%eax, (%esp)
