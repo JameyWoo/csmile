@@ -18,6 +18,10 @@ void genCalc(TreeNode* calc, map<string, string> var2stack);
 void genIfElse(TreeNode* ifelse, map<string, string> var2stack);
 void genReturn(TreeNode* returnStmt, map<string, string> var2stack);
 void genCall(TreeNode* call, map<string, string> var2stack);
+void genWhile(TreeNode* iter, map<string, string> var2stack);
+
+int getId();  // 生成一个全局的id
+int id = 0;
 
 void genFunc(TreeNode*);  // 处理单个函数
 void genAssembly(TreeNode* root);
@@ -30,6 +34,10 @@ void genAssembly(TreeNode* root);
 
 void debug(string info) {
     cout << info << endl;
+}
+
+int getId() {
+    return id++;
 }
 
 void getParams(TreeNode* params, string func_name) {
@@ -125,6 +133,13 @@ void genOutput(TreeNode* output, map<string, string> var2stack) {
                << "%eax, (%esp)"
                << "\n\t"
                << "call\tprintf" << endl;
+    } else if (output->child[0]->nodekind == "Call") {
+        genCall(output->child[0], var2stack);
+        // call 的结果在 %eax中
+        assout << "\tmovl\t%eax, 4(%esp)" << endl
+               << "\tmovl\t$.LC0, %eax" << endl
+               << "\tmovl\t%eax, (%esp)" << endl
+               << "\tcall\tprintf" << endl;
     }
 }
 
@@ -154,14 +169,51 @@ void genStmt(TreeNode* stmts, map<string, string> var2stack) {
             genReturn(stmt, var2stack);
         } else if (stmt->nodekind == "Call") {
             genCall(stmt, var2stack);
+        } else if (stmt->nodekind == "Iteration") {
+            genWhile(stmt, var2stack);
         }
 
         stmt = stmt->sibling;
     }
 }
 
+void solveCompare(TreeNode* root, string reg, map<string, string> var2stack) {
+    // debug(root->nodekind);
+    // TODO: 最好有一个通用处理的函数, 专门计算 exp等
+    if (root->nodekind == "Const") {
+        assout << "\tmovl\t$" << to_string(root->val) << ", " << reg << endl;
+    } else if (root->nodekind == "Id") {
+        assout << "\tmovl\t" << var2stack[root->name] << ", " << reg << endl;
+    }
+}
+
 void genIfElse(TreeNode* ifelse, map<string, string> var2stack) {
     debug("ifelse->child[0]: " + ifelse->child[0]->nodekind);
+    // debug("ifelse->child[0]: " + ifelse->child[1]->nodekind);
+    // debug("ifelse->child[0]: " + ifelse->child[2]->nodekind);
+    // ifelse->child[0] 是条件判断
+    // ifelse->child[1] 是 if 的条件成立之后的的stmt
+    // ifelse->child[2] 是 else 之后的stmt
+    if (ifelse->child[0]->op == "==") {
+        debug(" == ");
+        TreeNode* left = ifelse->child[0]->child[0];
+        solveCompare(left, "%eax", var2stack);
+        // 左边的结果放到 %eax, 右边的结果放到 %edx
+        TreeNode* right = ifelse->child[0]->child[1];
+        solveCompare(right, "%edx", var2stack);
+        assout << "\tcmpl\t%edx, %eax" << endl;
+
+        string L1 = ".L" + to_string(getId());
+        string L2 = ".L" + to_string(getId());
+        assout << "\tjne\t" << L1 << endl;
+        genStmt(ifelse->child[1], var2stack);
+        assout << "\tjmp\t" << L2 << endl;
+        assout << L1 << ":" << endl;
+        debug("else: " + ifelse->child[2]->nodekind);
+        genStmt(ifelse->child[2], var2stack);
+        assout << L2 << ":" << endl;
+    }
+    // TODO: 其他的比较
 }
 
 void genReturn(TreeNode* returnStmt, map<string, string> var2stack) {
@@ -170,11 +222,16 @@ void genReturn(TreeNode* returnStmt, map<string, string> var2stack) {
         assout << "\tmovl\t" << var2stack[returnStmt->child[0]->name] << ", %eax" << endl;
     } else if (returnStmt->child[0]->nodekind == "Const") {
         assout << "\tmovl\t$" << to_string(returnStmt->child[0]->val) << ", %eax" << endl;
+    } else if (returnStmt->child[0]->nodekind == "Call") {
+        debug("return call: " + returnStmt->child[0]->nodekind);
+        genCall(returnStmt->child[0], var2stack);
     }
     // TODO: 除了直接返回Id, 还有其他返回形式. 如 a + b, input() 这种
 }
 
 void genCall(TreeNode* call, map<string, string> var2stack) {
+    // ! 结果在 %eax中
+    if (call == NULL) return;
     debug("call: " + call->child[0]->nodekind);
     // 解析 Call 的参数
     // call->child[0] 是这个函数的名字
@@ -203,12 +260,17 @@ void genCall(TreeNode* call, map<string, string> var2stack) {
     assout << "\tsubl\t$" << 4 * cnt << ", %esp" << endl;
     while (not call_stack.empty()) {
         string stack_loc = to_string(4 * cnt) + "(%esp)";
-        TreeNode *tmp = call_stack.top();
+        TreeNode* tmp    = call_stack.top();
+        debug("arg type: " + tmp->nodekind);
         string left = "";
         if (tmp->nodekind == "Const") {
             left += "$" + to_string(tmp->val);
         } else if (tmp->nodekind == "Id") {
             assout << "\tmovl\t" << var2stack[tmp->name] << ", %edx" << endl;
+            left += "%edx";
+        } else if (tmp->nodekind == "PMOp" || tmp->nodekind == "MDOp") {
+            // 一个计算的表达式
+            genCalc(tmp, var2stack);
             left += "%edx";
         }
         assout << "\tmovl\t" << left << ", " << stack_loc << endl;
@@ -219,6 +281,57 @@ void genCall(TreeNode* call, map<string, string> var2stack) {
     }
     // 调用函数
     assout << "\tcall\t" << call->child[0]->name << endl;
+}
+
+void genWhile(TreeNode* iter, map<string, string> var2stack) {
+    // 循环
+    string L1 = ".L" + to_string(getId());
+    string L2 = ".L" + to_string(getId());
+
+    if (iter->child[0]->op == "==") {
+        // debug(" == ");
+        assout << L1 << ":" << endl;
+        TreeNode* left = iter->child[0]->child[0];
+        solveCompare(left, "%eax", var2stack);
+        // 左边的结果放到 %eax, 右边的结果放到 %edx
+        TreeNode* right = iter->child[0]->child[1];
+        solveCompare(right, "%edx", var2stack);
+        assout << "\tcmpl\t%edx, %eax" << endl;
+        assout << "\tjne\t" << L2 << endl;
+        genStmt(iter->child[1], var2stack);
+        assout << "\tjmp\t" << L1 << endl;
+
+        assout << L2 << ":" << endl;
+    } else if (iter->child[0]->op == "<") {
+        assout << L1 << ":" << endl;
+        // 左边的结果放到 %eax, 右边的结果放到 %edx
+        TreeNode* left = iter->child[0]->child[0];
+        TreeNode* right = iter->child[0]->child[1];
+        solveCompare(left, "%eax",var2stack);
+        solveCompare(right, "%edx", var2stack);
+        assout << "\tcmpl\t %edx, %eax" << endl;
+        assout << "\tjge\t" << L2 << endl;
+        
+        genStmt(iter->child[1], var2stack);
+        assout << "\tjmp\t" << L1 << endl;
+
+        assout << L2 << ":" << endl;
+    } else if (iter->child[0]->op == ">") {
+        assout << L1 << ":" << endl;
+        // 左边的结果放到 %eax, 右边的结果放到 %edx
+        TreeNode* left = iter->child[0]->child[0];
+        TreeNode* right = iter->child[0]->child[1];
+        solveCompare(left, "%eax",var2stack);
+        solveCompare(right, "%edx", var2stack);
+        assout << "\tcmpl\t %edx, %eax" << endl;
+        assout << "\tjle\t" << L2 << endl;
+        
+        genStmt(iter->child[1], var2stack);
+        assout << "\tjmp\t" << L1 << endl;
+
+        assout << L2 << ":" << endl;
+    }
+    // TODO: 其他的比较
 }
 
 void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
@@ -257,13 +370,44 @@ void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
 }
 
 void genCalc(TreeNode* calc, map<string, string> var2stack) {
+    // TODO: 出了一个bug, 要注意, 相同优先级是要先左后右来计算的
+    // TODO: 有 bug, 多重计算的时候, 寄存器会混淆
+    // * 将计算结果保存到 %edx 中
+    // * 递归地先将左值计算, 存储到%edx中, 将右值计算, 存储到%ecx中. %eax做暂时的中介.
+
     // debug("calc->nodekind: " + calc->nodekind);
     // debug("calc->op: " + calc->op);
     // 计算
-    // debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
+    debug("calc->child[1]->nodekind: " + calc->child[1]->nodekind);
 
-    string left_loc  = var2stack[calc->child[0]->name];
-    string right_loc = var2stack[calc->child[1]->name];
+    string left_loc;
+    string right_loc;
+    // 是否有左值也是表达式的情况?
+    // 将左值放入 %eax
+    if (calc->child[0]->nodekind == "MDOp" || calc->child[0]->nodekind == "PMOp") {
+        genCalc(calc->child[0], var2stack);
+        assout << "\tmovl\t%edx, %eax" << endl;
+    } else if (calc->child[0]->nodekind == "Id") {
+        left_loc = var2stack[calc->child[0]->name];
+        assout << "\tmovl\t" << left_loc << ", %eax" << endl;
+    } else if (calc->child[0]->nodekind == "Const") {
+        left_loc = "$" + to_string(calc->child[1]->val);
+        assout << "\tmovl\t" << left_loc << ", %eax" << endl;
+    }
+    left_loc = "%eax";
+
+    // 如果是计算结点, 那么递归地调用, 得到的数放入寄存器 %ecx
+    // 如果是 Id, 那么得到栈地址
+    // 如果是 Const, 那么生成 $num
+    if (calc->child[1]->nodekind == "MDOp" || calc->child[1]->nodekind == "PMOp") {
+        genCalc(calc->child[1], var2stack);
+        assout << "\tmovl\t%edx, %ecx" << endl;
+        right_loc = "%ecx";
+    } else if (calc->child[1]->nodekind == "Id") {
+        right_loc = var2stack[calc->child[1]->name];
+    } else if (calc->child[1]->nodekind == "Const") {
+        right_loc = "$" + to_string(calc->child[1]->val);
+    }
     if (calc->op == "/") {
         assout << "\tmovl\t" << left_loc << ", %eax" << endl
                << "\tmovl\t%eax, %edx" << endl

@@ -3,16 +3,33 @@ Program:{
   body: [
     FunctionDeclaration {
       type: FunctionDeclaration
-      id: func
+      id: gcd
       params: [
-        int: a
-        int: b
+        int: u
+        int: v
       ]
       body: BlockStatement {
         type: BlockStatement
         body: [
-          ReturnStmt: {
-            Id: b
+          LocVarDecl:{
+            int: tmp
+          }
+          Selection: {
+            CompareOp: {
+              Id: v
+              Const: 0
+            }
+            ReturnStmt: {
+              Id: u
+            }
+          Else:
+            Assign: {
+              Id: tmp
+              MDOp: {
+                Id: u
+                Id: v
+              }
+            }
           }
         ]
       }
@@ -27,25 +44,25 @@ Program:{
         type: BlockStatement
         body: [
           LocVarDecl:{
-            int: a
-            int: b
+            int: x
+            int: y
           }
           Assign: {
-            Id: a
+            Id: x
             Input
           }
           Assign: {
-            Id: b
-            Call: {
-              Id: func
-              Args: {
-                Const: 4
-                Id: a
-              }
-            }
+            Id: y
+            Input
           }
           Output: {
-            Id: b
+            Call: {
+              Id: gcd
+              Args: {
+                Id: x
+                Id: y
+              }
+            }
           }
         ]
       }

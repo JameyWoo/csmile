@@ -1,8 +1,11 @@
 void main(void) {
     int a;
     int b;
+    int c;
     a = 6;
-    b = 2;
-    a = a / b;
+    b = 5;
+    c = a / b;
+    c = c * b;
+    a = a - c;
     output(a);
 }

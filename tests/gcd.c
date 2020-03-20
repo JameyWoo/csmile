@@ -1,9 +1,12 @@
 int gcd(int u, int v) {
+    int tmp;
     if (v == 0) {
         return u;
     } else {
         /* u-u/v*v == u mod v */
-        return gcd(v, u - u / v * v);
+        tmp = u / v;
+        tmp = tmp * v;
+        return gcd(v, u - tmp);
     }
 }
 
@@ -12,7 +15,6 @@ void main(void) {
     int y;
     x = input();
     y = input();
-    output(x);
-    output(y);
+    
     output(gcd(x, y));
 }
