@@ -16,6 +16,8 @@ void genStmt(TreeNode* stmts, map<string, string> var2stack);
 void genAssign(TreeNode* assign, map<string, string> var2stack, bool need);
 void genCalc(TreeNode* calc, map<string, string> var2stack);
 void genIfElse(TreeNode* ifelse, map<string, string> var2stack);
+void genReturn(TreeNode* returnStmt, map<string, string> var2stack);
+void genCall(TreeNode* call, map<string, string> var2stack);
 
 void genFunc(TreeNode*);  // 处理单个函数
 void genAssembly(TreeNode* root);
@@ -38,22 +40,22 @@ void getParams(TreeNode* params, string func_name) {
         return;
     }
 
-    stack<string> param_stack;
+    vector<string> param_stack;
     map<string, string> var2stack;
     // 接下来是有参数的
     TreeNode* param = params->child[0];
     while (param != NULL) {
         // debug("param: " + param->nodekind);
         // debug(param->child[0]->nodekind + " " + param->child[1]->name);
-        param_stack.push(param->child[1]->name);
+        param_stack.push_back(param->child[1]->name);
         param = param->sibling;
     }
 
     // * 给参数分配栈空间
     int bias = 8;
     while (not param_stack.empty()) {
-        var2stack[param_stack.top()] = to_string(bias) + "(%ebp)";
-        param_stack.pop();
+        var2stack[param_stack.front()] = to_string(bias) + "(%ebp)";
+        param_stack.erase(param_stack.begin());
         bias += 4;
     }
 
@@ -148,6 +150,10 @@ void genStmt(TreeNode* stmts, map<string, string> var2stack) {
             genAssign(stmt, var2stack, false);
         } else if (stmt->nodekind == "Selection") {
             genIfElse(stmt, var2stack);
+        } else if (stmt->nodekind == "ReturnStmt") {
+            genReturn(stmt, var2stack);
+        } else if (stmt->nodekind == "Call") {
+            genCall(stmt, var2stack);
         }
 
         stmt = stmt->sibling;
@@ -156,6 +162,63 @@ void genStmt(TreeNode* stmts, map<string, string> var2stack) {
 
 void genIfElse(TreeNode* ifelse, map<string, string> var2stack) {
     debug("ifelse->child[0]: " + ifelse->child[0]->nodekind);
+}
+
+void genReturn(TreeNode* returnStmt, map<string, string> var2stack) {
+    debug("return: " + returnStmt->child[0]->nodekind);
+    if (returnStmt->child[0]->nodekind == "Id") {
+        assout << "\tmovl\t" << var2stack[returnStmt->child[0]->name] << ", %eax" << endl;
+    } else if (returnStmt->child[0]->nodekind == "Const") {
+        assout << "\tmovl\t$" << to_string(returnStmt->child[0]->val) << ", %eax" << endl;
+    }
+    // TODO: 除了直接返回Id, 还有其他返回形式. 如 a + b, input() 这种
+}
+
+void genCall(TreeNode* call, map<string, string> var2stack) {
+    debug("call: " + call->child[0]->nodekind);
+    // 解析 Call 的参数
+    // call->child[0] 是这个函数的名字
+    // call->child[1] 如果不为 NULL 的话, 是 Args 类型的
+    // 解析args, arg可以是expression, 种类比较多. 考虑是不是要综合一个整体的
+    TreeNode* args = call->child[1];
+    if (args == NULL) {
+        // TODO: call 没有参数的情况
+        assout << "\tcall\t" << call->child[0]->name << endl;
+        return;
+    }
+    debug("args: " + args->child[0]->nodekind);
+    // debug("args: " + args->child[0]->sibling->nodekind);
+
+    // 传递参数
+    stack<TreeNode*> call_stack;
+    TreeNode* arg = args->child[0];
+    int cnt       = 0;
+    while (arg != NULL) {
+        cnt += 1;
+        call_stack.push(arg);
+        arg = arg->sibling;
+    }
+    // 调整栈的位置, 防止参数过多
+    cnt -= 1;
+    assout << "\tsubl\t$" << 4 * cnt << ", %esp" << endl;
+    while (not call_stack.empty()) {
+        string stack_loc = to_string(4 * cnt) + "(%esp)";
+        TreeNode *tmp = call_stack.top();
+        string left = "";
+        if (tmp->nodekind == "Const") {
+            left += "$" + to_string(tmp->val);
+        } else if (tmp->nodekind == "Id") {
+            assout << "\tmovl\t" << var2stack[tmp->name] << ", %edx" << endl;
+            left += "%edx";
+        }
+        assout << "\tmovl\t" << left << ", " << stack_loc << endl;
+        // TODO: 支持更多的参数类型
+
+        call_stack.pop();
+        cnt -= 1;
+    }
+    // 调用函数
+    assout << "\tcall\t" << call->child[0]->name << endl;
 }
 
 void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
@@ -182,6 +245,11 @@ void genAssign(TreeNode* assign, map<string, string> var2stack, bool need) {
         assout << "\tmovl\t%edx, " << left_loc << endl;
     } else if (assign->child[1]->nodekind == "Input") {
         genInput(assign->child[1], left_loc);  // 第二个参数是赋值的地址
+    } else if (assign->child[1]->nodekind == "Call") {
+        // call 有一种是在赋值中的, 有一种是普通的没有被赋值的调用
+        genCall(assign->child[1], var2stack);
+        // 返回值
+        assout << "\tmovl\t%eax, " << left_loc << endl;
     }
     if (need) {
         assout << "\tmovl\t" << left_loc << ", %edx" << endl;

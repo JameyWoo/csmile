@@ -1,5 +1,11 @@
 -------------------
+function: func
+id -- Param --- lines
+a    : yes | 1   
+b    : yes | 1   2   
+-------------------
 function: main
 id -- Param --- lines
-x    : no  | 2   3   4   
+a    : no  | 6   8   9   
+b    : no  | 7   9   10  
 -------------------

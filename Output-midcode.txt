@@ -1,10 +1,18 @@
 * cminus IR generate
 * FunDecl
 * Compound
+* ReturnStmt
+* FunDecl
+* Compound
+* LocVarDecl
 * LocVarDecl
 * Assign
-LD r1, 1
+LD r1, 3
 * Input
 [r1] = 
+* Assign
+LD r2, 4
+* Call
+[r2] = 
 * Output
 halt
