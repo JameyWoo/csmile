@@ -6,6 +6,6 @@ int add(int a, int b) {
 
 /* 如果函数没有参数, 那么需要使用void, 而不能为空 */
 int main(void) {
-    int ans;
+    int ans = 1;
     ans = add(5, 3);
 }
