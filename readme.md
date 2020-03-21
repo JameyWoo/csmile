@@ -96,7 +96,7 @@ void main(void) {
         b = b * a;
         a = a - 1;
     }
-    output(b); */
+    output(b);
 }
 ```
 
