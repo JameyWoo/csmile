@@ -1,0 +1,56 @@
+Program:{
+  type: program,
+  body: [
+    FunctionDeclaration {
+      type: FunctionDeclaration
+      id: add
+      params: [
+        int: a
+        int: b
+      ]
+      body: BlockStatement {
+        type: BlockStatement
+        body: [
+          LocVarDecl:{
+            int: c
+          }
+          Assign: {
+            Id: c
+            PMOp: {
+              Id: a
+              Id: b
+            }
+          }
+          ReturnStmt: {
+            Id: c
+          }
+        ]
+      }
+    }
+    FunctionDeclaration {
+      type: FunctionDeclaration
+      id: main
+      params: [
+        void
+      ]
+      body: BlockStatement {
+        type: BlockStatement
+        body: [
+          LocVarDecl:{
+            int: ans
+          }
+          Assign: {
+            Id: ans
+            Call: {
+              Id: add
+              Args: {
+                Const: 5
+                Const: 3
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
