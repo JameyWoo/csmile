@@ -4,71 +4,34 @@
 .LC1:
 	.string "%d"
 	.text
-	.global	gcd
-	.type	gcd, @function
-gcd:
+	.global	add
+	.type	add, @function
+add:
 .LFB0:
 	pushl	%ebp
 	movl	%esp, %ebp
 	subl	$17, %esp
-	movl	12(%ebp), %eax
-	movl	$0, %edx
-	cmpl	%edx, %eax
-	jne	.L0
 	movl	8(%ebp), %eax
-	jmp	.L1
-.L0:
-	movl	8(%ebp), %eax
-	movl	%eax, %eax
 	movl	%eax, %edx
-	sarl	$31, %edx
-	idivl	12(%ebp)
-	movl	%eax, %edx
+	addl	12(%ebp), %edx
 	movl	%edx, -4(%ebp)
 	movl	-4(%ebp), %eax
-	movl	%eax, %edx
-	imull	12(%ebp), %edx
-	movl	%edx, -4(%ebp)
-	subl	$4, %esp
-	movl	8(%ebp), %eax
-	movl	%eax, %edx
-	subl	-4(%ebp), %edx
-	movl	%edx, 4(%esp)
-	movl	12(%ebp), %edx
-	movl	%edx, 0(%esp)
-	call	gcd
-.L1:
 	leave
 	ret
 .LFE0:
-	.size	gcd, .-gcd
+	.size	add, .-add
 	.global	main
 	.type	main, @function
 main:
 .LFB1:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$18, %esp
-	movl	$.LC1, %eax
-	leal	-8(%ebp), %edx
-	movl	%edx, 4(%esp)
-	movl	%eax, (%esp)
-	call	__isoc99_scanf
-	movl	$.LC1, %eax
-	leal	-4(%ebp), %edx
-	movl	%edx, 4(%esp)
-	movl	%eax, (%esp)
-	call	__isoc99_scanf
+	subl	$17, %esp
 	subl	$4, %esp
-	movl	-4(%ebp), %edx
-	movl	%edx, 4(%esp)
-	movl	-8(%ebp), %edx
-	movl	%edx, 0(%esp)
-	call	gcd
-	movl	%eax, 4(%esp)
-	movl	$.LC0, %eax
-	movl	%eax, (%esp)
-	call	printf
+	movl	$3, 4(%esp)
+	movl	$5, 0(%esp)
+	call	add
+	movl	%eax, -4(%ebp)
 	leave
 	ret
 .LFE1:
