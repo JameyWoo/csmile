@@ -1,5 +1,9 @@
 # csmile
 
+![](https://img.shields.io/badge/language-c++-brightgreen.svg?style=plastic) ![](https://img.shields.io/github/license/JameyWoo/csmile?logo=csmile)
+
+
+
 csmile is a compiler for a subset of the C language. Partial compilation is implemented.
 
 If you try this simple compiler, you will find that your code can't always be successfully compiled here, because I simplified the syntax a lot, it is only a small subset of the C language.
