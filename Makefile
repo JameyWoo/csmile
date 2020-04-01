@@ -1,9 +1,9 @@
-CXX = g++
+CXX = g++ -g -Wall
 CXXFLAGS = -std=c++11
 
 SRC = main.cpp scan.cpp parse.cpp analyze.cpp symtab.cpp cgen.cpp code.cpp assembly.cpp
 OBJS = $(SRC:.cpp=.o)
-EXEC = csmile.exe
+EXEC = main.exe
 
 all: $(EXEC)
 
