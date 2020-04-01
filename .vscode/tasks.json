@@ -1,0 +1,13 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "echo",
+            "command": "make",
+            // "options": {
+            //     "cwd": "C:\\mingw64\\bin"
+            // }
+        }
+    ],
+    "version": "2.0.0"
+}
